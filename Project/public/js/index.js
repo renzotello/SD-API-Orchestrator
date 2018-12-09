@@ -48,6 +48,30 @@ $(document).ready(function() {
   });
 });
 
+$(document).ready(function() {
+  $("#uipathStatement").click(function() {
+
+    var params = {
+      "tenancyName": "Default",
+      "usernameOrEmailAddress": "admin",
+      "password": "P@ssw0rd"
+    };
+
+    $.ajax({
+      type: "POST",
+      url: "https://teaubneorcrpa.sdiad.simedarbyindustrial.com/api/account/authenticate",
+      data: JSON.stringify(params),
+      contentType: "application/json",
+      dataType: "json",
+      success: authenticateCopyStatement,
+      error: function(data) {
+        console.log("Error in login Copy of Statement");
+        console.log(data);
+      }
+    });
+
+  });
+});
 function authenticate(data) {
   console.log("successful Login");
   console.log(data);
@@ -79,7 +103,21 @@ function authenticateCopyInvoice(data) {
   }
 
 }
+function authenticateCopyStatement(data) {
+  console.log("successful login Copy of Satement");
+  console.log(data);
 
+  var returnedData = JSON.parse(JSON.stringify(data));
+
+  // console.log(returnedData["error"]);
+  // console.log(data["error"]);
+  if (returnedData["error"] == null) {
+    console.log("no error");
+    executeRobotCopyStatement(returnedData);
+
+  }
+
+}
 function executeRobotCopyInvoice(returnedData) {
   var result = returnedData["result"];
 
@@ -91,7 +129,43 @@ function executeRobotCopyInvoice(returnedData) {
         2
       ],
       "NoOfRobots": 0,
-      "Source": "Didi"
+      "Source": "Manual"
+    }
+  };
+
+  $.ajax({
+    type: "POST",
+    url: "https://teaubneorcrpa.sdiad.simedarbyindustrial.com/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs",
+    data: JSON.stringify(params),
+    contentType: "application/json",
+    dataType: "json",
+    headers: {
+      'Authorization': `Bearer ${result}`
+    },
+    success: function(data){
+      console.log(data);
+      console.log("Robot executing copy of invoice");
+    },
+    error: function(data) {
+      console.log("error in login");
+      console.log(data);
+    }
+  });
+
+}
+
+function executeRobotCopyStatement(returnedData) {
+  var result = returnedData["result"];
+
+  var params = {
+    "startInfo": {
+      "ReleaseKey": "f4f5c9e6-b453-4b35-8f6a-ec710f6832c4",
+      "Strategy": "Specific",
+      "RobotIds": [
+        2
+      ],
+      "NoOfRobots": 0,
+      "Source": "Manual"
     }
   };
 
@@ -124,7 +198,7 @@ function executeRobot(returnedData) {
       "ReleaseKey": "f88edd00-879a-44b7-9efb-345a3b944e50",
       "Strategy": "Specific",
       "RobotIds": [
-        77127
+        77750
       ],
       "NoOfRobots": 0,
       "Source": "Manual"
